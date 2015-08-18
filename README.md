@@ -1,7 +1,7 @@
 # srv-shim
 SRV record support for legacy systems.  Built on top of [plumber](https://github.com/the-tetanus-clinic/plumber), part of the [discotech](https://github.com/the-tetanus-clinic/discotech) suite.
 
-It works by intercepting calls to getaddrinfo, which would normally fail due to reliance on A/AAAA records, and using SRV instead.
+It works by intercepting calls to getaddrinfo, which would normally fail due to reliance on A/AAAA records, and using SRV instead for names prefixed with an underscore.
 
 #### Compile-Time Prerequisites
 1. [Rust](https://www.rust-lang.org/install.html) (stable recommended but not required)
