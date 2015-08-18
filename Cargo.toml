@@ -1,0 +1,13 @@
+[package]
+name = "srv-shim"
+version = "0.1.0"
+authors = ["Tyler Neely <t@jujit.su>"]
+
+[lib]
+name = "srvshim"
+crate_type = ["dylib"]
+
+[dependencies]
+libc="0.1.8"
+plumber = "0.0.3"
+lazy_static="0.1.14"
