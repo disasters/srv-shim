@@ -1,9 +1,11 @@
 [package]
 name = "srv-shim"
-version = "0.1.0"
+description = "Drop-in SRV record support for legacy systems."
+version = "0.1.1"
 authors = ["Tyler Neely <t@jujit.su>"]
 homepage = "https://github.com/the-tetanus-clinic/srv-shim"
 keywords = ["DNS", "distributed-systems", "service-discovery", "LD_PRELOAD"]
+license = "Apache-2.0"
 
 [lib]
 name = "srvshim"
@@ -11,5 +13,5 @@ crate_type = ["dylib"]
 
 [dependencies]
 libc="0.1.8"
-plumber = "0.0.3"
+plumber = "0.0.5"
 lazy_static="0.1.14"
