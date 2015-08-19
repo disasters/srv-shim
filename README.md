@@ -16,14 +16,14 @@ Now, `target/debug/libsrvshim.so` should exist.
 #### Usage
 Linux/FreeBSD:
 ```
-LD_PRELOAD=target/debug/libplumber.so \
+LD_PRELOAD=target/debug/libsrvshim.so \
 curl _my-service._tcp.domain
 ```
 You may also create an entry in `/etc/ld.so.conf` to cause it to be loaded in all processes on the system.
 
 OSX:
 ```
-DYLD_INSERT_LIBRARIES=/abs/path/to/libplumber.so \
+DYLD_INSERT_LIBRARIES=/abs/path/to/libsrvshim.so \
 DYLD_FORCE_FLAT_NAMESPACE=YES \
 curl _my-service._tcp.domain
 ```

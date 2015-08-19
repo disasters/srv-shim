@@ -2,6 +2,8 @@
 name = "srv-shim"
 version = "0.1.0"
 authors = ["Tyler Neely <t@jujit.su>"]
+homepage = "https://github.com/the-tetanus-clinic/srv-shim"
+keywords = ["DNS", "distributed-systems", "service-discovery", "LD_PRELOAD"]
 
 [lib]
 name = "srvshim"
