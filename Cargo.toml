@@ -13,5 +13,5 @@ crate_type = ["dylib"]
 
 [dependencies]
 libc="0.1.8"
-plumber = "0.0.5"
+plumber = "0.0.6"
 lazy_static="0.1.14"

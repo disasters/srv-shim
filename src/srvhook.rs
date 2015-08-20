@@ -7,13 +7,16 @@ use std::ffi::{CStr};
 use std::mem;
 use std::str::from_utf8;
 use std::sync::{RwLock};
+use std::sync::atomic::{AtomicUsize, Ordering};
 
 use plumber::dynamic::dlsym_next;
 use plumber::util::{sockaddr_to_port_ip,port_ip_to_sa_data};
+use plumber::util::{ip_to_usize,usize_to_ip};
 use plumber::dns::srv_mapper;
 use plumber::hooks::Hook;
 
 pub struct SRVHook {
+    max_ip: AtomicUsize,
     magic_ip_to_host: RwLock<BTreeMap<[u8;4], String>>,
     host_to_magic_ip: RwLock<BTreeMap<String, [u8;4]>>,
     real_connect:
@@ -34,6 +37,9 @@ impl SRVHook {
     pub unsafe fn new() -> SRVHook {
         println!("here!!!");
         SRVHook{
+            // 250/8 is currently reserved for future use by IANA, so
+            // it should be a safe choice.
+            max_ip: AtomicUsize::new(ip_to_usize([250,0,0,0])),
             magic_ip_to_host: RwLock::new(BTreeMap::new()),
             host_to_magic_ip: RwLock::new(BTreeMap::new()),
             real_getaddrinfo:
@@ -60,6 +66,12 @@ impl SRVHook {
             });
         });
     }
+
+    fn next_ip(&self) -> [u8;4] {
+        let id = self.max_ip.fetch_add(1, Ordering::Relaxed);
+        println!("got ip");
+        usize_to_ip(id)
+    }
 }
 
 impl Hook for SRVHook {
@@ -85,7 +97,7 @@ impl Hook for SRVHook {
         let s: String = from_utf8(c_str.to_bytes()).unwrap().to_owned();
         // Trigger on possible SRV records.
         if s.starts_with("_") {
-            let (port, ip) = (8080, [127,127,127,127]);
+            let (port, ip) = (8080, self.next_ip());
             let mut iph = self.magic_ip_to_host.write().unwrap();
             iph.insert(ip, s);
             unsafe {
