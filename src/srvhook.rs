@@ -35,7 +35,6 @@ pub struct SRVHook {
 
 impl SRVHook {
     pub unsafe fn new() -> SRVHook {
-        println!("here!!!");
         SRVHook{
             // 250/8 is currently reserved for future use by IANA, so
             // it should be a safe choice.
@@ -63,13 +62,15 @@ impl SRVHook {
                             port_ip_to_sa_data(new_port, new_ip);
                     }
                 }
+            }).or_else(|e| {
+                println!("srv-shim: failed to look up SRV record for {}: {}", h, e);
+                Err(e)
             });
         });
     }
 
     fn next_ip(&self) -> [u8;4] {
         let id = self.max_ip.fetch_add(1, Ordering::Relaxed);
-        println!("got ip");
         usize_to_ip(id)
     }
 }
@@ -94,12 +95,20 @@ impl Hook for SRVHook {
     fn getaddrinfo(&self, node: *const c_char, service: *const c_char,
                    hints: *const addrinfo, res: *mut *const addrinfo) -> c_int {
         let c_str = unsafe { CStr::from_ptr(node) };
-        let s: String = from_utf8(c_str.to_bytes()).unwrap().to_owned();
+        let node_str: String = from_utf8(c_str.to_bytes()).unwrap().to_owned();
         // Trigger on possible SRV records.
-        if s.starts_with("_") {
-            let (port, ip) = (8080, self.next_ip());
-            let mut iph = self.magic_ip_to_host.write().unwrap();
-            iph.insert(ip, s);
+        if node_str.starts_with("_") {
+            let mut hip = self.host_to_magic_ip.write().unwrap();
+            let ip = match hip.get(&node_str) {
+                Some(ip) => *ip,
+                None => {
+                    let ip = self.next_ip();
+                    let mut iph = self.magic_ip_to_host.write().unwrap();
+                    iph.insert(ip, node_str.clone());
+                    ip
+                },
+            };
+            hip.insert(node_str, ip);
             unsafe {
                 let sa_buf: *mut sockaddr =
                     mem::transmute(
@@ -107,7 +116,7 @@ impl Hook for SRVHook {
                     );
                 *sa_buf = sockaddr{
                     sa_family: 2,
-                    sa_data: port_ip_to_sa_data(port, ip),
+                    sa_data: port_ip_to_sa_data(8080, ip),
                 };
 
                 let ai_buf: *mut addrinfo =

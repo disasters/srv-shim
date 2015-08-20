@@ -1,7 +1,7 @@
 [package]
 name = "srv-shim"
 description = "Drop-in SRV record support for legacy systems."
-version = "0.1.1"
+version = "0.1.2"
 authors = ["Tyler Neely <t@jujit.su>"]
 homepage = "https://github.com/the-tetanus-clinic/srv-shim"
 keywords = ["DNS", "distributed-systems", "service-discovery", "LD_PRELOAD"]
